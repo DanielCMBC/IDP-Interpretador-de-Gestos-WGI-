@@ -2,11 +2,15 @@ const feedbackToast = document.createElement("div");
 feedbackToast.style.position = "fixed";
 feedbackToast.style.bottom = "20px";
 feedbackToast.style.right = "20px";
-feedbackToast.style.padding = "10px 20px";
-feedbackToast.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
+feedbackToast.style.padding = "9px 18px";
+feedbackToast.style.background = "linear-gradient(180deg, rgba(158,236,255,0.95) 0%, rgba(31,178,236,0.95) 50%, rgba(11,127,196,0.95) 51%, rgba(31,178,236,0.95) 100%)";
+feedbackToast.style.border = "1px solid rgba(255,255,255,0.9)";
+feedbackToast.style.boxShadow = "inset 0 1px 0 rgba(255,255,255,0.8), 0 6px 18px rgba(11,127,196,0.45)";
+feedbackToast.style.textShadow = "0 1px 1px rgba(0,60,100,0.55)";
+feedbackToast.style.fontWeight = "600";
 feedbackToast.style.color = "#ffffff";
-feedbackToast.style.borderRadius = "8px";
-feedbackToast.style.fontFamily = "sans-serif";
+feedbackToast.style.borderRadius = "999px";
+feedbackToast.style.fontFamily = "\"Segoe UI\", \"Frutiger\", \"Myriad Pro\", system-ui, sans-serif";
 feedbackToast.style.fontSize = "14px";
 feedbackToast.style.zIndex = "999999";
 feedbackToast.style.opacity = "0";
@@ -18,12 +22,12 @@ document.body.appendChild(feedbackToast);
 let feedbackTimeout;
 
 const friendlyNames = {
-    "left_click": "Left Click 🖱️",
-    "right_click": "Right Click 🖱️",
-    "double_click": "Double Click 🖱️",
-    "scroll": "Scrolling ↕️",
-    "drag": "Dragging ✋",
-    "release_drag": "Drop 🤚"
+    "left_click": "Left click",
+    "right_click": "Right click",
+    "double_click": "Double click",
+    "scroll": "Scrolling",
+    "drag": "Dragging",
+    "release_drag": "Dropped"
 };
 
 // Status-only actions: they repeat every frame and must not raise a toast.
@@ -44,7 +48,7 @@ const intervalId = setInterval(() => {
                 console.log("Ação detectada pelo WGI:", response.action);
                 
                 const actionText = friendlyNames[response.action] || response.action;
-                feedbackToast.innerText = `Gesture: ${actionText}`;
+                feedbackToast.innerText = actionText;
                 feedbackToast.style.opacity = "1";
                 feedbackToast.style.transform = "translateY(0)";
                 

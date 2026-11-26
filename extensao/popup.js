@@ -48,6 +48,15 @@ const modeButtons = document.querySelectorAll('.mode-btn');
 
 function setStatus(message) {
     document.getElementById('status').innerText = message;
+    // Status light: green = tracking, pulsing amber = busy, red = error, grey = idle.
+    const m = message.toLowerCase();
+    let state = "idle";
+    if (m.startsWith("error") || m.includes("offline") || m.includes("can't see")) state = "err";
+    else if (m.includes("loading") || m.includes("opening") || m.includes("starting")
+             || m.includes("stopping") || m.includes("%") || m.includes("paused")) state = "busy";
+    else if (m.startsWith("tracking")) state = "ok";
+    const pill = document.getElementById('status-pill');
+    if (pill) pill.dataset.state = state;
 }
 
 function setLoading(visible, progress = null) {
