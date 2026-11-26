@@ -67,6 +67,10 @@ EYE_HYSTERESIS = 0.12
 # single glitch frame cannot inflate it).
 OPEN_LEVEL_FRAMES = 120
 OPEN_LEVEL_PERCENTILE = 50
+# Ablation switches used by evaluation/benchmark_eyes.py to reproduce earlier
+# designs. Production uses the defaults.
+OPENNESS_BY_EYE_WIDTH = False   # True = classic EAR (lid gap / that eye's width)
+RELATIVE_BLINK_CHECK = True     # False = 'other eye closed too' means blink
 WINK_MIN_FRAMES = 2
 
 
@@ -227,6 +231,10 @@ class EyeController(CursorController):
 
         def ear(eye):
             pairs = (*eye["lids"], (eye["top"], eye["bottom"]))
+            if OPENNESS_BY_EYE_WIDTH:
+                (a1, a2), (b1, b2) = eye["lids"]
+                c1, c2 = eye["corners"]
+                return (dist(p(a1), p(a2)) + dist(p(b1), p(b2))) / (2 * max(dist(p(c1), p(c2)), 1e-6))
             return sum(dist(p(a), p(b)) for a, b in pairs) / len(pairs) / interocular
 
         def iris(eye):
@@ -386,7 +394,7 @@ class EyeController(CursorController):
                 # Blink-like only if the other eye is about as closed. Recorded
                 # winks: the other eye squints to 0.30-0.46 (under blink_ratio)
                 # while the winking eye is at ~0.07-0.25 -- still a clear wink.
-                if not rl < ratio * rr:
+                if (not rl < ratio * rr) if RELATIVE_BLINK_CHECK else r_closed:
                     self.left.both_frames += 1
                 if now - self.left.since >= cfg["drag_hold"] and not self.left.looks_like_blink():
                     self.dragging = True
@@ -413,7 +421,7 @@ class EyeController(CursorController):
         if self.right.active:
             if r_closed:
                 self.right.frames += 1
-                if not rr < ratio * rl:
+                if (not rr < ratio * rl) if RELATIVE_BLINK_CHECK else l_closed:
                     self.right.both_frames += 1
                 return "wink_right"
             held = now - self.right.since

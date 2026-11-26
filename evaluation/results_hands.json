@@ -1,0 +1,600 @@
+{
+  "episodes_per_class": 60,
+  "seed": 7,
+  "stages": [
+    {
+      "id": "V0",
+      "description": "Original finger-bend angles (calibration defaults)",
+      "accuracy": 0.3972222222222222,
+      "macro": {
+        "precision": 0.8620689655172413,
+        "recall": 0.3433333333333333,
+        "f1": 0.4310597668407448
+      },
+      "per_class": {
+        "left": {
+          "precision": 1.0,
+          "recall": 0.18333333333333332,
+          "f1": 0.30985915492957744,
+          "support": 60
+        },
+        "double": {
+          "precision": 0.3103448275862069,
+          "recall": 0.15,
+          "f1": 0.20224719101123598,
+          "support": 60
+        },
+        "right": {
+          "precision": 1.0,
+          "recall": 0.18333333333333332,
+          "f1": 0.30985915492957744,
+          "support": 60
+        },
+        "drag": {
+          "precision": 1.0,
+          "recall": 0.2,
+          "f1": 0.33333333333333337,
+          "support": 60
+        },
+        "scroll": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 60
+        },
+        "none": {
+          "precision": 0.16877637130801687,
+          "recall": 0.6666666666666666,
+          "f1": 0.26936026936026936,
+          "support": 60
+        }
+      },
+      "false_trigger_rate": 0.33333333333333337,
+      "confusion": {
+        "left": {
+          "left": 11,
+          "double": 0,
+          "right": 0,
+          "drag": 0,
+          "scroll": 0,
+          "none": 49
+        },
+        "double": {
+          "left": 0,
+          "double": 9,
+          "right": 0,
+          "drag": 0,
+          "scroll": 0,
+          "none": 51
+        },
+        "right": {
+          "left": 0,
+          "double": 0,
+          "right": 11,
+          "drag": 0,
+          "scroll": 0,
+          "none": 49
+        },
+        "drag": {
+          "left": 0,
+          "double": 0,
+          "right": 0,
+          "drag": 12,
+          "scroll": 0,
+          "none": 48
+        },
+        "scroll": {
+          "left": 0,
+          "double": 0,
+          "right": 0,
+          "drag": 0,
+          "scroll": 60,
+          "none": 0
+        },
+        "none": {
+          "left": 0,
+          "double": 20,
+          "right": 0,
+          "drag": 0,
+          "scroll": 0,
+          "none": 40
+        }
+      }
+    },
+    {
+      "id": "S1",
+      "description": "Pinch v1: fingertip-to-fingertip, fixed release, hold-to-drag, fist guard",
+      "accuracy": 0.6027777777777777,
+      "macro": {
+        "precision": 0.8462670662670663,
+        "recall": 0.5233333333333333,
+        "f1": 0.6315865572518834
+      },
+      "per_class": {
+        "left": {
+          "precision": 0.6538461538461539,
+          "recall": 0.2833333333333333,
+          "f1": 0.39534883720930236,
+          "support": 60
+        },
+        "double": {
+          "precision": 1.0,
+          "recall": 0.4666666666666667,
+          "f1": 0.6363636363636364,
+          "support": 60
+        },
+        "right": {
+          "precision": 0.9714285714285714,
+          "recall": 0.5666666666666667,
+          "f1": 0.7157894736842105,
+          "support": 60
+        },
+        "drag": {
+          "precision": 0.6060606060606061,
+          "recall": 0.6666666666666666,
+          "f1": 0.6349206349206349,
+          "support": 60
+        },
+        "scroll": {
+          "precision": 1.0,
+          "recall": 0.6333333333333333,
+          "f1": 0.7755102040816326,
+          "support": 60
+        },
+        "none": {
+          "precision": 0.3592814371257485,
+          "recall": 1.0,
+          "f1": 0.5286343612334802,
+          "support": 60
+        }
+      },
+      "false_trigger_rate": 0.0,
+      "confusion": {
+        "left": {
+          "left": 17,
+          "double": 0,
+          "right": 0,
+          "drag": 26,
+          "scroll": 0,
+          "none": 17
+        },
+        "double": {
+          "left": 7,
+          "double": 28,
+          "right": 0,
+          "drag": 0,
+          "scroll": 0,
+          "none": 25
+        },
+        "right": {
+          "left": 0,
+          "double": 0,
+          "right": 34,
+          "drag": 0,
+          "scroll": 0,
+          "none": 26
+        },
+        "drag": {
+          "left": 2,
+          "double": 0,
+          "right": 0,
+          "drag": 40,
+          "scroll": 0,
+          "none": 18
+        },
+        "scroll": {
+          "left": 0,
+          "double": 0,
+          "right": 1,
+          "drag": 0,
+          "scroll": 38,
+          "none": 21
+        },
+        "none": {
+          "left": 0,
+          "double": 0,
+          "right": 0,
+          "drag": 0,
+          "scroll": 0,
+          "none": 60
+        }
+      }
+    },
+    {
+      "id": "S2",
+      "description": "+ flesh contact (thumb pad to finger pad)",
+      "accuracy": 0.8194444444444444,
+      "macro": {
+        "precision": 0.9212121212121211,
+        "recall": 0.7833333333333333,
+        "f1": 0.8050672679973457
+      },
+      "per_class": {
+        "left": {
+          "precision": 1.0,
+          "recall": 0.35,
+          "f1": 0.5185185185185185,
+          "support": 60
+        },
+        "double": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 60
+        },
+        "right": {
+          "precision": 1.0,
+          "recall": 0.7,
+          "f1": 0.8235294117647058,
+          "support": 60
+        },
+        "drag": {
+          "precision": 0.6060606060606061,
+          "recall": 1.0,
+          "f1": 0.7547169811320755,
+          "support": 60
+        },
+        "scroll": {
+          "precision": 1.0,
+          "recall": 0.8666666666666667,
+          "f1": 0.9285714285714286,
+          "support": 60
+        },
+        "none": {
+          "precision": 0.6976744186046512,
+          "recall": 1.0,
+          "f1": 0.8219178082191781,
+          "support": 60
+        }
+      },
+      "false_trigger_rate": 0.0,
+      "confusion": {
+        "left": {
+          "left": 21,
+          "double": 0,
+          "right": 0,
+          "drag": 39,
+          "scroll": 0,
+          "none": 0
+        },
+        "double": {
+          "left": 0,
+          "double": 60,
+          "right": 0,
+          "drag": 0,
+          "scroll": 0,
+          "none": 0
+        },
+        "right": {
+          "left": 0,
+          "double": 0,
+          "right": 42,
+          "drag": 0,
+          "scroll": 0,
+          "none": 18
+        },
+        "drag": {
+          "left": 0,
+          "double": 0,
+          "right": 0,
+          "drag": 60,
+          "scroll": 0,
+          "none": 0
+        },
+        "scroll": {
+          "left": 0,
+          "double": 0,
+          "right": 0,
+          "drag": 0,
+          "scroll": 52,
+          "none": 8
+        },
+        "none": {
+          "left": 0,
+          "double": 0,
+          "right": 0,
+          "drag": 0,
+          "scroll": 0,
+          "none": 60
+        }
+      }
+    },
+    {
+      "id": "S3",
+      "description": "+ drag by moving the pinched hand",
+      "accuracy": 0.9277777777777778,
+      "macro": {
+        "precision": 1.0,
+        "recall": 0.9133333333333333,
+        "f1": 0.9504201680672268
+      },
+      "per_class": {
+        "left": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 60
+        },
+        "double": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 60
+        },
+        "right": {
+          "precision": 1.0,
+          "recall": 0.7,
+          "f1": 0.8235294117647058,
+          "support": 60
+        },
+        "drag": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 60
+        },
+        "scroll": {
+          "precision": 1.0,
+          "recall": 0.8666666666666667,
+          "f1": 0.9285714285714286,
+          "support": 60
+        },
+        "none": {
+          "precision": 0.6976744186046512,
+          "recall": 1.0,
+          "f1": 0.8219178082191781,
+          "support": 60
+        }
+      },
+      "false_trigger_rate": 0.0,
+      "confusion": {
+        "left": {
+          "left": 60,
+          "double": 0,
+          "right": 0,
+          "drag": 0,
+          "scroll": 0,
+          "none": 0
+        },
+        "double": {
+          "left": 0,
+          "double": 60,
+          "right": 0,
+          "drag": 0,
+          "scroll": 0,
+          "none": 0
+        },
+        "right": {
+          "left": 0,
+          "double": 0,
+          "right": 42,
+          "drag": 0,
+          "scroll": 0,
+          "none": 18
+        },
+        "drag": {
+          "left": 0,
+          "double": 0,
+          "right": 0,
+          "drag": 60,
+          "scroll": 0,
+          "none": 0
+        },
+        "scroll": {
+          "left": 0,
+          "double": 0,
+          "right": 0,
+          "drag": 0,
+          "scroll": 52,
+          "none": 8
+        },
+        "none": {
+          "left": 0,
+          "double": 0,
+          "right": 0,
+          "drag": 0,
+          "scroll": 0,
+          "none": 60
+        }
+      }
+    },
+    {
+      "id": "S4",
+      "description": "+ release relative to deepest point, re-arm, clear-winner 1.1",
+      "accuracy": 0.9277777777777778,
+      "macro": {
+        "precision": 1.0,
+        "recall": 0.9133333333333333,
+        "f1": 0.9504201680672268
+      },
+      "per_class": {
+        "left": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 60
+        },
+        "double": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 60
+        },
+        "right": {
+          "precision": 1.0,
+          "recall": 0.7,
+          "f1": 0.8235294117647058,
+          "support": 60
+        },
+        "drag": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 60
+        },
+        "scroll": {
+          "precision": 1.0,
+          "recall": 0.8666666666666667,
+          "f1": 0.9285714285714286,
+          "support": 60
+        },
+        "none": {
+          "precision": 0.6976744186046512,
+          "recall": 1.0,
+          "f1": 0.8219178082191781,
+          "support": 60
+        }
+      },
+      "false_trigger_rate": 0.0,
+      "confusion": {
+        "left": {
+          "left": 60,
+          "double": 0,
+          "right": 0,
+          "drag": 0,
+          "scroll": 0,
+          "none": 0
+        },
+        "double": {
+          "left": 0,
+          "double": 60,
+          "right": 0,
+          "drag": 0,
+          "scroll": 0,
+          "none": 0
+        },
+        "right": {
+          "left": 0,
+          "double": 0,
+          "right": 42,
+          "drag": 0,
+          "scroll": 0,
+          "none": 18
+        },
+        "drag": {
+          "left": 0,
+          "double": 0,
+          "right": 0,
+          "drag": 60,
+          "scroll": 0,
+          "none": 0
+        },
+        "scroll": {
+          "left": 0,
+          "double": 0,
+          "right": 0,
+          "drag": 0,
+          "scroll": 52,
+          "none": 8
+        },
+        "none": {
+          "left": 0,
+          "double": 0,
+          "right": 0,
+          "drag": 0,
+          "scroll": 0,
+          "none": 60
+        }
+      }
+    },
+    {
+      "id": "S5",
+      "description": "+ no fist guard, no drag/scroll from the release jolt, scroll threshold 0.06 (current)",
+      "accuracy": 1.0,
+      "macro": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "per_class": {
+        "left": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 60
+        },
+        "double": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 60
+        },
+        "right": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 60
+        },
+        "drag": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 60
+        },
+        "scroll": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 60
+        },
+        "none": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 60
+        }
+      },
+      "false_trigger_rate": 0.0,
+      "confusion": {
+        "left": {
+          "left": 60,
+          "double": 0,
+          "right": 0,
+          "drag": 0,
+          "scroll": 0,
+          "none": 0
+        },
+        "double": {
+          "left": 0,
+          "double": 60,
+          "right": 0,
+          "drag": 0,
+          "scroll": 0,
+          "none": 0
+        },
+        "right": {
+          "left": 0,
+          "double": 0,
+          "right": 60,
+          "drag": 0,
+          "scroll": 0,
+          "none": 0
+        },
+        "drag": {
+          "left": 0,
+          "double": 0,
+          "right": 0,
+          "drag": 60,
+          "scroll": 0,
+          "none": 0
+        },
+        "scroll": {
+          "left": 0,
+          "double": 0,
+          "right": 0,
+          "drag": 0,
+          "scroll": 60,
+          "none": 0
+        },
+        "none": {
+          "left": 0,
+          "double": 0,
+          "right": 0,
+          "drag": 0,
+          "scroll": 0,
+          "none": 60
+        }
+      }
+    }
+  ]
+}
