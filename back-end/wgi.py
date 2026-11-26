@@ -17,6 +17,8 @@ import right_click as right_click
 import double_click as double_click
 import scroll as scroll
 import calibration_manager as calibration_manager
+from control_common import (perform_mouse_action, get_linux_display_server,
+                            warn_linux_display_server_once)
 
 # MediaPipe defaults are 0.5. 0.85 on *tracking* forces a full re-detection
 # whenever confidence dips, which drops frames during fast motion; every dropped
@@ -103,7 +105,7 @@ def reset_interaction_state():
     global right_click_armed, double_click_armed, last_click_time
 
     if is_dragging and mouse_down_triggered:
-        pyautogui.mouseUp()
+        perform_mouse_action("mouseUp")
 
     is_dragging = False
     mouse_down_triggered = False
@@ -135,7 +137,7 @@ def cancel_drag():
     global is_dragging, mouse_down_triggered, left_click_candidate_frames
 
     if is_dragging and mouse_down_triggered and not should_suppress_mouse_actions():
-        pyautogui.mouseUp()
+        perform_mouse_action("mouseUp")
     is_dragging = False
     mouse_down_triggered = False
     left_click_candidate_frames = 0
@@ -188,7 +190,7 @@ def detect_gesture(frame, landmark_list, geom_list, processed):
             current_state["x"], current_state["y"] = x, y
             if not should_suppress_mouse_actions():
                 screen_w, screen_h = get_screen_size()
-                pyautogui.moveTo(int(x * screen_w), int(y * screen_h))
+                perform_mouse_action("moveTo", int(x * screen_w), int(y * screen_h))
 
         thumb_index_dist = util.get_distance(geom_list, 4, 5)
         
@@ -230,7 +232,7 @@ def detect_gesture(frame, landmark_list, geom_list, processed):
             cancel_drag()
             action = "scroll"
             if scroll_amount != 0 and not should_suppress_mouse_actions():
-                pyautogui.scroll(scroll_amount)
+                perform_mouse_action("scroll", scroll_amount)
         elif is_db:
             cancel_drag()
             action = "double_click"
@@ -248,7 +250,7 @@ def detect_gesture(frame, landmark_list, geom_list, processed):
             else:
                 if current_time - left_click_start_time > drag_hold_threshold and not mouse_down_triggered:
                     if not should_suppress_mouse_actions():
-                        pyautogui.mouseDown()
+                        perform_mouse_action("mouseDown")
                     mouse_down_triggered = True
                 action = "drag" if mouse_down_triggered else "holding_click"
         else:
@@ -258,12 +260,12 @@ def detect_gesture(frame, landmark_list, geom_list, processed):
                     if mouse_down_triggered:
                         action = "release_drag"
                         if not should_suppress_mouse_actions():
-                            pyautogui.mouseUp()
+                            perform_mouse_action("mouseUp")
                         mouse_down_triggered = False
                     else:
                         action = "left_click"
                         if not should_suppress_mouse_actions():
-                            pyautogui.click()
+                            perform_mouse_action("click")
                     last_click_time = current_time
                     left_click_candidate_frames = 0
                 else:
@@ -272,12 +274,12 @@ def detect_gesture(frame, landmark_list, geom_list, processed):
         if not is_dragging and current_time - last_click_time > click_cooldown:
             if action == "right_click" and right_click_armed:
                 if not should_suppress_mouse_actions():
-                    pyautogui.click(button='right')
+                    perform_mouse_action("click", button='right')
                 right_click_armed = False
                 last_click_time = current_time
             elif action == "double_click" and double_click_armed:
                 if not should_suppress_mouse_actions():
-                    pyautogui.doubleClick()
+                    perform_mouse_action("doubleClick")
                 double_click_armed = False
                 last_click_time = current_time
 
@@ -301,7 +303,7 @@ def detect_gesture(frame, landmark_list, geom_list, processed):
             is_dragging = False
             if mouse_down_triggered:
                 if not should_suppress_mouse_actions():
-                    pyautogui.mouseUp()
+                    perform_mouse_action("mouseUp")
                 mouse_down_triggered = False
 
 class HandController:
@@ -454,10 +456,17 @@ def active_mode():
 
 
 def _open_camera(cv2):
-    if platform.system() == 'Linux':
+    system_name = platform.system()
+    if system_name == 'Linux':
         cap = cv2.VideoCapture(0, cv2.CAP_V4L2)
         if not cap.isOpened():
             print("Aviso: Falha ao usar V4L2. Tentando backend padrão do OpenCV...")
+            cap = cv2.VideoCapture(0)
+    elif system_name == 'Darwin':
+        avfoundation = getattr(cv2, "CAP_AVFOUNDATION", 0)
+        cap = cv2.VideoCapture(0, avfoundation)
+        if not cap.isOpened():
+            print("Aviso: Falha ao usar AVFoundation. Tentando backend padrao do OpenCV...")
             cap = cv2.VideoCapture(0)
     else:
         cap = cv2.VideoCapture(0)
@@ -550,7 +559,7 @@ def _tracking_loop(session):
             if not session.headless:
                 cv2.putText(frame, f"Mode: {session.mode}", (50, frame_h - 30),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 0), 2)
-                cv2.imshow('WGI Engine', frame)
+                cv2.imshow('WGI', frame)
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
     except Exception as exc:
@@ -696,6 +705,8 @@ class WGIServer(BaseHTTPRequestHandler):
             state_data["tracker"] = ctrl.info() if ctrl is not None else None
             screen_w, screen_h = get_screen_size()
             state_data["screen"] = {"width": screen_w, "height": screen_h}
+            if platform.system() == "Linux":
+                state_data["display_server"] = get_linux_display_server()
             state_data["camera"] = {"width": camera_size[0], "height": camera_size[1]}
             state_data["camera_ready"] = (active and s.model_status == "ready"
                                           and s.camera_status == "ready")
@@ -765,6 +776,7 @@ def start_tracking(headless, mode="hands", wait=0):
     global _session
     if mode not in MODES:
         raise ValueError(f"unknown mode {mode!r}")
+    warn_linux_display_server_once()
     with _session_lock:
         current = _session
         if current is not None and current.active and current.mode == mode:

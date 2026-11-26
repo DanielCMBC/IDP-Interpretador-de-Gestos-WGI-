@@ -2,9 +2,16 @@ import json
 import os
 import copy
 import statistics
+import sys
 
-DB_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                       "calibration.json")
+def get_runtime_dir():
+    """Where calibration.json lives: next to the executable in the compiled
+    (PyInstaller) app, the repository root when running from source."""
+    if getattr(sys, "frozen", False):
+        return os.path.dirname(sys.executable)
+    return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+DB_FILE = os.path.join(get_runtime_dir(), "calibration.json")
 
 # Once a left click has started, the pose is allowed to relax by this many
 # degrees before the drag releases. It is hysteresis, not a second pose: it must

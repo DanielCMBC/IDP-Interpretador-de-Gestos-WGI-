@@ -37,7 +37,7 @@ import statistics
 
 import pyautogui
 
-from control_common import PositionHistory, scroll as wheel
+from control_common import PositionHistory, perform_mouse_action, scroll as wheel
 
 THUMB_PAD = (3, 4)                       # thumb's last joint -> tip
 FINGERS = (("index", (6, 7, 8)), ("middle", (10, 11, 12)), ("ring", (14, 15, 16)))
@@ -154,7 +154,7 @@ class PinchGestures:
     def reset(self):
         """Hand lost or tracking stopped: never leave the button held."""
         if self.dragging:
-            pyautogui.mouseUp()
+            perform_mouse_action("mouseUp")
         self._reset_contact()
 
     # ------------------------------------------------------------------------
@@ -174,7 +174,7 @@ class PinchGestures:
         if self.cursor is not None:
             self._follow = True          # the pump moves the OS cursor
         else:
-            pyautogui.moveTo(*self._px((x, y)))
+            perform_mouse_action("moveTo", *self._px((x, y)))
 
     # ------------------------------------------------------------------------
     def _touching_finger(self, ratios):
@@ -264,7 +264,7 @@ class PinchGestures:
                 self.rearm[old] = self._ratios.get(old)
             if self.dragging:
                 self.dragging = False
-                pyautogui.mouseUp()
+                perform_mouse_action("mouseUp")
                 return "release_drag"
             if self.scrolling:
                 self.scrolling = False
@@ -278,14 +278,14 @@ class PinchGestures:
                         and math.dist(prev[1], self.pos) <= DOUBLE_RADIUS):
                     # Second click on the very same pixel, inside the OS's
                     # double-click time: the OS turns the pair into a double click.
-                    pyautogui.click(*self._px(prev[1]))
+                    perform_mouse_action("click", *self._px(prev[1]))
                     self.last_tap = None
                     return "double_click"
-                pyautogui.click(*self._px(self.pos))
+                perform_mouse_action("click", *self._px(self.pos))
                 self.last_tap = (now, self.pos)
                 return "left_click"
             if old == "middle":
-                pyautogui.click(*self._px(self.pos), button="right")
+                perform_mouse_action("click", *self._px(self.pos), button="right")
                 return "right_click"
             return None           # ring and others: no action
 
@@ -316,7 +316,7 @@ class PinchGestures:
                 if moved_px > DRAG_START * w:
                     self.dragging = True
                     self.last_tap = None
-                    pyautogui.mouseDown(*self._px(self.pos))
+                    perform_mouse_action("mouseDown", *self._px(self.pos))
             if self.dragging:
                 self._move(x, y, now)
                 return "drag"

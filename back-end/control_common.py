@@ -1,12 +1,19 @@
-"""Helpers shared by the eye and torso controllers.
+"""Helpers shared by the hand, eye and torso controllers.
 
-Both controllers work the same way: measure a few signals from the landmarks,
-capture a *neutral* value for each when tracking starts (or on /recenter), and
-map the offset from neutral onto the screen.
+Every mouse action in every mode goes through perform_mouse_action(), which
+falls back to xdotool on Linux/X11 when PyAutoGUI fails and prints the
+macOS/Linux permission hints once.
+
+The eye and torso controllers work the same way: measure a few signals from
+the landmarks, capture a *neutral* value for each when tracking starts (or on
+/recenter), and map the offset from neutral onto the screen.
 """
 import math
+import os
 import platform
+import shutil
 import statistics
+import subprocess
 import time
 
 import pyautogui
@@ -15,6 +22,111 @@ import pyautogui
 NEUTRAL_FRAMES = 30
 
 _IS_WINDOWS = platform.system() == "Windows"
+
+
+# ---------------------------------------------------------------------------
+# Mouse output with platform fallbacks
+# ---------------------------------------------------------------------------
+_mouse_action_error_logged = False
+_display_server_warning_logged = False
+
+
+def get_linux_display_server():
+    if platform.system() != "Linux":
+        return None
+
+    session_type = os.environ.get("XDG_SESSION_TYPE", "").lower()
+    if session_type in ("x11", "wayland"):
+        return session_type
+    if os.environ.get("WAYLAND_DISPLAY"):
+        return "wayland"
+    if os.environ.get("DISPLAY"):
+        return "x11"
+    return "unknown"
+
+
+def warn_linux_display_server_once():
+    global _display_server_warning_logged
+
+    if platform.system() != "Linux" or _display_server_warning_logged:
+        return
+
+    display_server = get_linux_display_server()
+    if display_server == "wayland":
+        print("Aviso: Wayland detectado. A camera pode funcionar, mas o Wayland costuma bloquear controle global do cursor.")
+        print("Para cliques/movimento do WGI, use uma sessao X11/Xorg ou configure uma ferramenta de injecao permitida pelo compositor.")
+    elif display_server == "unknown":
+        print("Aviso: Nenhum DISPLAY/WAYLAND_DISPLAY detectado. O backend pode abrir a camera, mas nao deve controlar o cursor.")
+
+    _display_server_warning_logged = True
+
+
+def _run_xdotool(args):
+    xdotool = shutil.which("xdotool")
+    if not xdotool:
+        return False
+
+    try:
+        subprocess.run([xdotool] + args, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        return True
+    except (OSError, subprocess.CalledProcessError):
+        return False
+
+
+def _perform_x11_mouse_action(action_name, *args, **kwargs):
+    if platform.system() != "Linux" or get_linux_display_server() != "x11":
+        return False
+
+    # Positioned actions (click(x, y), mouseDown(x, y)) move first.
+    if action_name in ("click", "doubleClick", "mouseDown", "mouseUp") and len(args) >= 2:
+        if not _run_xdotool(["mousemove", str(int(args[0])), str(int(args[1]))]):
+            return False
+    if action_name == "moveTo" and len(args) >= 2:
+        return _run_xdotool(["mousemove", str(int(args[0])), str(int(args[1]))])
+    if action_name == "click":
+        button = "3" if kwargs.get("button", "left") == "right" else "1"
+        repeat = str(int(kwargs.get("clicks", 1)))
+        return _run_xdotool(["click", "--repeat", repeat, "--delay", "80", button])
+    if action_name == "doubleClick":
+        return _run_xdotool(["click", "--repeat", "2", "--delay", "80", "1"])
+    if action_name == "mouseDown":
+        return _run_xdotool(["mousedown", "1"])
+    if action_name == "mouseUp":
+        return _run_xdotool(["mouseup", "1"])
+    if action_name == "scroll" and args:
+        scroll_amount = int(args[0])
+        button = "4" if scroll_amount > 0 else "5"
+        repeat = min(abs(scroll_amount), 10)
+        if repeat == 0:
+            return True
+        return _run_xdotool(["click", "--repeat", str(repeat), button])
+
+    return False
+
+
+def perform_mouse_action(action_name, *args, **kwargs):
+    """pyautogui.<action_name>(*args, **kwargs), falling back to xdotool on
+    Linux/X11. Never raises: a failed mouse action must not kill tracking."""
+    global _mouse_action_error_logged
+
+    try:
+        getattr(pyautogui, action_name)(*args, **kwargs)
+        return True
+    except Exception as exc:
+        if _perform_x11_mouse_action(action_name, *args, **kwargs):
+            return True
+
+        if not _mouse_action_error_logged:
+            print(f"Aviso: PyAutoGUI nao conseguiu executar '{action_name}': {exc}")
+            print("No macOS, permita Camera e Accessibility para o app/Terminal nas configuracoes de privacidade.")
+            if platform.system() == "Linux":
+                display_server = get_linux_display_server()
+                if display_server == "x11":
+                    print("No Linux X11, instale 'xdotool' para fallback de clique/movimento caso o PyAutoGUI falhe.")
+                elif display_server == "wayland":
+                    print("No Linux Wayland, controle global do cursor geralmente e bloqueado. Use sessao X11/Xorg para suporte completo.")
+            _mouse_action_error_logged = True
+        return False
 
 
 def clamp01(v):
@@ -33,7 +145,7 @@ def scroll(amount):
         return
     if not _IS_WINDOWS:
         amount = int(math.copysign(max(1, abs(amount) // 40), amount))
-    pyautogui.scroll(amount)
+    perform_mouse_action("scroll", amount)
 
 
 class NeutralPose:
@@ -215,7 +327,7 @@ class CursorPump:
             if px != self._last_px:
                 self._last_px = px
                 try:
-                    pyautogui.moveTo(*px)
+                    perform_mouse_action("moveTo", *px)
                 except Exception:
                     pass
 
@@ -301,7 +413,7 @@ class CursorController:
                 and abs(py - self._last_px[1]) < self.min_pixel_step):
             return
         self._last_px = (px, py)
-        pyautogui.moveTo(px, py)
+        perform_mouse_action("moveTo", px, py)
 
     def _jump_to(self, pos):
         if pos is not None:
@@ -319,20 +431,20 @@ class CursorController:
             return False
         self.last_click = now
         px, py = self._jump_to(pos)
-        pyautogui.click(px, py, clicks=clicks, interval=0.05, button=button)
+        perform_mouse_action("click", px, py, clicks=clicks, interval=0.05, button=button)
         return True
 
     def mouse_down(self, pos=None):
         if self.button_held:
             return
         px, py = self._jump_to(pos)
-        pyautogui.mouseDown(px, py, button="left")
+        perform_mouse_action("mouseDown", px, py, button="left")
         self.button_held = True
 
     def mouse_up(self):
         if self.button_held:
             self.button_held = False
-            pyautogui.mouseUp(button="left")
+            perform_mouse_action("mouseUp", button="left")
 
 
 class PositionHistory:
