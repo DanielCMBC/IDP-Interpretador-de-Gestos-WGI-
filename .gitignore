@@ -3,3 +3,5 @@ __pycache__/
 *.rar
 *.zip
 *.tar.gz
+.venv/
+venv/

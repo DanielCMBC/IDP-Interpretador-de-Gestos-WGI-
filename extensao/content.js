@@ -26,7 +26,13 @@ const friendlyNames = {
     "release_drag": "Drop 🤚"
 };
 
-const ignoredActions = ["move", "holding_click", "left_click_intent"];
+// Status-only actions: they repeat every frame and must not raise a toast.
+const ignoredActions = [
+    "move", "holding_click", "left_click_intent",
+    "centering", "eyes_closed", "scroll_ready", "shrug",
+    "wink_left", "wink_right", "paused", "learning", "pinch",
+    "calibrating"
+];
 
 const intervalId = setInterval(() => {
     try {

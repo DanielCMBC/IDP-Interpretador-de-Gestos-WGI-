@@ -122,6 +122,30 @@
             text-align: left;
         }
         .saved-values.visible { display: block; }
+        /* Mode selector */
+        .mode-picker { display: flex; gap: 8px; margin-bottom: 8px; }
+        .mode-btn {
+            flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+            padding: 8px 4px; border-radius: 12px; cursor: pointer;
+            background: var(--btn-bg); color: var(--text); border: 1px solid var(--glass-border);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), 0 2px 4px rgba(0,0,0,0.2);
+            text-shadow: var(--text-shadow); font-size: 12px; font-weight: 600; font-family: inherit;
+            transition: all 0.2s;
+        }
+        .mode-btn .icon { font-size: 20px; line-height: 1.2; }
+        .mode-btn:hover { background: var(--btn-hover); }
+        .mode-btn.selected { background: var(--accent); color: #fff; outline: 2px solid rgba(255,255,255,0.7); }
+        .mode-btn:disabled { opacity: 0.6; cursor: wait; }
+        .mode-help {
+            font-size: 11px; line-height: 1.4; color: var(--text-muted); margin-bottom: 10px;
+            min-height: 46px; text-shadow: var(--text-shadow);
+        }
+        .loading-bar { height: 3px; border-radius: 2px; margin: -8px 0 12px; overflow: hidden; background: rgba(0,0,0,0.25); visibility: hidden; }
+        .loading-bar.visible { visibility: visible; }
+        .loading-bar span { display: block; height: 100%; width: 35%; background: #fff; opacity: 0.7; animation: slide 1.1s ease-in-out infinite; }
+        .loading-bar.progress span { animation: none; transition: width 0.2s; }
+        @keyframes slide { from { transform: translateX(-100%); } to { transform: translateX(300%); } }
+        .hidden-el { display: none !important; }
         .progress-line {
             font-size: 11px;
             color: var(--text-muted);
@@ -137,10 +161,18 @@
             <button id="theme-btn" class="theme-toggle">🌓</button>
         </div>
         <div class="status-badge" id="status">Status: Waiting</div>
-        <button id="btn-start" class="glass-btn primary">Start Camera</button>
-        <button id="btn-stop" class="glass-btn">Stop Camera</button>
+        <div class="loading-bar" id="loading-bar"><span></span></div>
+        <div class="mode-picker" role="radiogroup" aria-label="Control mode">
+            <button class="mode-btn" data-mode="hands" role="radio"><span class="icon">✋</span>Hands</button>
+            <button class="mode-btn" data-mode="eyes" role="radio"><span class="icon">👁️</span>Eyes</button>
+            <button class="mode-btn" data-mode="torso" role="radio"><span class="icon">🧍</span>Torso</button>
+        </div>
+        <div class="mode-help" id="mode-help"></div>
+        <button id="btn-start" class="glass-btn primary">Start</button>
+        <button id="btn-stop" class="glass-btn">Stop</button>
+        <button id="btn-recenter" class="glass-btn hidden-el">Re-center</button>
         <div style="flex:1"></div>
-        <button id="btn-calibrate" class="glass-btn">Callibration System</button>
+        <button id="btn-calibrate" class="glass-btn">Calibration System</button>
     </div>
 
     
@@ -150,7 +182,7 @@
         </div>
         
         <div id="video-container" style="text-align:center; margin-bottom: 10px;">
-            <img id="video-feed" alt="Camera Feed" style="width: 100%; max-height: 140px; object-fit: cover; border-radius: 8px; border: 1px solid var(--glass-border); background: #000;">
+            <img id="video-feed" alt="Camera Feed" style="width: 100%; max-height: 180px; object-fit: contain; border-radius: 8px; border: 1px solid var(--glass-border); background: #000;">
         </div>
         
         <div class="wizard-step active">

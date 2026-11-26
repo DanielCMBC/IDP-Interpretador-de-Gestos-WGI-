@@ -34,10 +34,17 @@ findActivePort();
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === "start_tracking" || request.action === "stop_tracking") {
+        // start_tracking carries the selected mode (hands | eyes | torso). The
+        // server answers immediately and loads that model in the background.
+        const body = request.action === "start_tracking"
+            ? JSON.stringify({ mode: request.mode || "hands" })
+            : undefined;
         findActivePort()
             .then(() => fetch(`${BASE_URL}/${request.action}`, {
                 method: "POST",
-                mode: "cors"
+                mode: "cors",
+                body,
+                headers: body ? { "Content-Type": "application/json" } : undefined
             }))
             .then(response => response.json())
             .then(data => {
@@ -107,6 +114,15 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             .then(response => response.json())
             .then(data => sendResponse(data))
             .catch(error => sendResponse(null));
+        return true;
+    }
+
+    if (request.action === "recenter") {
+        findActivePort()
+            .then(() => fetch(`${BASE_URL}/recenter`, { method: "POST" }))
+            .then(response => response.json())
+            .then(data => sendResponse(data))
+            .catch(() => sendResponse({ message: "Error: WGI server is not running.", error: true }));
         return true;
     }
 

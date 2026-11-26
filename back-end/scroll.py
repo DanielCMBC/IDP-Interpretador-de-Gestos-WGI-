@@ -12,15 +12,26 @@ ring_history = collections.deque(maxlen=HISTORY_LENGTH)
 pinky_history = collections.deque(maxlen=HISTORY_LENGTH)
 y_history = collections.deque(maxlen=HISTORY_LENGTH)
 
-def detect_scroll(landmark_list):
+def reset_state():
+    global prev_hand_y
+    prev_hand_y = None
+    for d in (idx_history, mid_history, ring_history, pinky_history, y_history):
+        d.clear()
+
+def detect_scroll(landmark_list, geom_list):
+    """landmark_list: raw normalised 2D landmarks (image space, for displacement).
+    geom_list: geometry-space landmarks (world 3D when available, for angles)."""
     global prev_hand_y
     cfg = calibration_manager.config.get("scroll", {})
 
-    idx_angle_raw = util.get_angle(landmark_list[5], landmark_list[6], landmark_list[8])
-    mid_angle_raw = util.get_angle(landmark_list[9], landmark_list[10], landmark_list[12])
-    ring_angle_raw = util.get_angle(landmark_list[13], landmark_list[14], landmark_list[16])
-    pinky_angle_raw = util.get_angle(landmark_list[17], landmark_list[18], landmark_list[20])
-    
+    idx_angle_raw = util.get_angle(geom_list[5], geom_list[6], geom_list[8])
+    mid_angle_raw = util.get_angle(geom_list[9], geom_list[10], geom_list[12])
+    ring_angle_raw = util.get_angle(geom_list[13], geom_list[14], geom_list[16])
+    pinky_angle_raw = util.get_angle(geom_list[17], geom_list[18], geom_list[20])
+
+    # Scroll displacement is a *position in the frame*, so it must come from the
+    # normalised image landmarks. World landmarks are centred on the hand and
+    # would report no movement at all.
     current_y_raw = landmark_list[0][1]
 
     idx_history.append(idx_angle_raw)
@@ -56,12 +67,12 @@ def detect_scroll(landmark_list):
             pinky_angle < cfg.get("pinky_angle_max", 50)
     )
 
-    scale = util.get_hand_scale(landmark_list)
-    dist_8_12 = util.get_raw_dist(landmark_list[8], landmark_list[12]) / scale
+    scale = util.get_hand_scale(geom_list)
+    dist_8_12 = util.get_raw_dist(geom_list[8], geom_list[12]) / scale
     if dist_8_12 < 0.2:
         is_peace_sign = False
 
-    is_frozen = cursor_movement.is_frozen(landmark_list)
+    is_frozen = cursor_movement.is_frozen(geom_list)
     scroll_amount = 0
 
     if is_peace_sign and not is_frozen:

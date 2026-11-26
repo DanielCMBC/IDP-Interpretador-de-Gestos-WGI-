@@ -12,9 +12,9 @@ def reset_state():
     idx_history.clear()
     mid_history.clear()
 
-def is_left_click(landmark_list, thumb_index_dist, is_dragging=False):
-    idx_angle_raw = util.get_angle(landmark_list[5], landmark_list[6], landmark_list[8])
-    mid_angle_raw = util.get_angle(landmark_list[9], landmark_list[10], landmark_list[12])
+def is_left_click(geom_list, thumb_index_dist, is_dragging=False):
+    idx_angle_raw = util.get_angle(geom_list[5], geom_list[6], geom_list[8])
+    mid_angle_raw = util.get_angle(geom_list[9], geom_list[10], geom_list[12])
     
     idx_history.append(idx_angle_raw)
     mid_history.append(mid_angle_raw)
@@ -31,7 +31,7 @@ def is_left_click(landmark_list, thumb_index_dist, is_dragging=False):
     cfg = calibration_manager.config.get("left_click", {})
     
     is_stable = idx_std < cfg.get("stability_std_max", 35) and mid_std < cfg.get("stability_std_max", 35)
-    is_frozen = cursor_movement.is_frozen(landmark_list)
+    is_frozen = cursor_movement.is_frozen(geom_list)
     thumb_gate_open = thumb_index_dist > cfg.get("thumb_index_dist_min", 50) or is_frozen
     
     if is_dragging:
